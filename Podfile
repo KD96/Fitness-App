@@ -1,5 +1,7 @@
 platform :ios, '16.0'
 
+project 'FitnessApp/FitnessApp.xcodeproj'
+
 target 'FitnessApp' do
   use_frameworks!
 
