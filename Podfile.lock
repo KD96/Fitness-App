@@ -1177,11 +1177,11 @@ PODS:
 
 DEPENDENCIES:
   - Alamofire (~> 5.6.4)
-  - Firebase/Auth (~> 10.18.0)
-  - Firebase/Core (~> 10.18.0)
-  - Firebase/Firestore (~> 10.18.0)
-  - Firebase/Storage (~> 10.18.0)
-  - FirebaseFirestoreSwift (~> 10.18.0)
+  - Firebase/Auth (= 10.18.0)
+  - Firebase/Core (= 10.18.0)
+  - Firebase/Firestore (= 10.18.0)
+  - Firebase/Storage (= 10.18.0)
+  - FirebaseFirestoreSwift (= 10.18.0)
   - Kingfisher (~> 7.0)
   - SnapKit (~> 5.6.0)
   - SwiftyJSON (~> 5.0.1)
@@ -1249,6 +1249,6 @@ SPEC CHECKSUMS:
   SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
   SwiftyJSON: f5b1bf1cd8dd53cd25887ac0eabcfd92301c6a5a
 
-PODFILE CHECKSUM: 6fac8f8e87d30ba45ea7b0056af8189736e25b31
+PODFILE CHECKSUM: 6a7bd4094aed2f1ea58542ea5a8635bd1b91d550
 
 COCOAPODS: 1.16.2

@@ -8,12 +8,14 @@ inhibit_all_warnings!
 target 'FitnessApp' do
   use_frameworks!
 
-  # Firebase - Usar versiones específicas compatibles
-  pod 'Firebase/Core', '~> 10.18.0'
-  pod 'Firebase/Auth', '~> 10.18.0'
-  pod 'Firebase/Firestore', '~> 10.18.0'
-  pod 'Firebase/Storage', '~> 10.18.0'
-  pod 'FirebaseFirestoreSwift', '~> 10.18.0'
+  # Core Firebase
+  pod 'Firebase/Core', '10.18.0'
+  pod 'Firebase/Auth', '10.18.0'
+  pod 'Firebase/Firestore', '10.18.0'
+  pod 'Firebase/Storage', '10.18.0'
+  
+  # Explicit dependency for DocumentID property wrapper
+  pod 'FirebaseFirestoreSwift', '10.18.0'
 
   # UI Components
   pod 'SnapKit', '~> 5.6.0'

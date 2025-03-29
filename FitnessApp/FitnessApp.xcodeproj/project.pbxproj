@@ -428,6 +428,7 @@
 					"${PODS_ROOT}/Firebase/CoreOnly/Sources",
 					"${PODS_ROOT}/Headers/Public",
 					"${PODS_ROOT}/FirebaseCore/FirebaseCore/Sources",
+					"$(inherited)",
 				);
 				INFOPLIST_FILE = FitnessApp/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
