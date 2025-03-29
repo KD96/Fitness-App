@@ -2,14 +2,15 @@ platform :ios, '16.0'
 
 project 'FitnessApp/FitnessApp.xcodeproj'
 
-# Enfoque alternativo para resolver los problemas de compilación
+# Disable warnings for cleaner builds
 inhibit_all_warnings!
 
-# Usamos la versión 10.15 de Firebase para mejor compatibilidad con arm64
 target 'FitnessApp' do
   use_frameworks!
 
-  # Firebase
+  # Add the main Firebase pod
+  pod 'Firebase', '~> 10.15.0'
+  # Firebase modules
   pod 'Firebase/Core', '~> 10.15.0'
   pod 'Firebase/Auth', '~> 10.15.0'
   pod 'Firebase/Firestore', '~> 10.15.0'

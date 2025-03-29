@@ -1,6 +1,5 @@
 import Foundation
 import Firebase
-import FirebaseFirestoreSwift
 
 struct Workout: Identifiable, Codable {
     @DocumentID var id: String?
