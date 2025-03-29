@@ -23,7 +23,7 @@ import Foundation
 /**
  * A Task that lists the entries under a {@link StorageReference}
  */
-class StorageListTask: StorageTask, StorageTaskManagement {
+internal class StorageListTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var taskCompletion: ((_: StorageListResult?, _: NSError?) -> Void)?
@@ -43,12 +43,12 @@ class StorageListTask: StorageTask, StorageTaskManagement {
    * @param previousPageToken An optional pageToken, used to resume a previous invocation.
    * @param completion The completion handler to be called with the FIRIMPLStorageListResult.
    */
-  init(reference: StorageReference,
-       fetcherService: GTMSessionFetcherService,
-       queue: DispatchQueue,
-       pageSize: Int64?,
-       previousPageToken: String?,
-       completion: ((_ listResult: StorageListResult?, _ error: NSError?) -> Void)?) {
+  internal init(reference: StorageReference,
+                fetcherService: GTMSessionFetcherService,
+                queue: DispatchQueue,
+                pageSize: Int64?,
+                previousPageToken: String?,
+                completion: ((_ listResult: StorageListResult?, _ error: NSError?) -> Void)?) {
     self.pageSize = pageSize
     self.previousPageToken = previousPageToken
     super.init(reference: reference, service: fetcherService, queue: queue)
@@ -66,7 +66,7 @@ class StorageListTask: StorageTask, StorageTaskManagement {
   /**
    * Prepares a task and begins execution.
    */
-  func enqueue() {
+  internal func enqueue() {
     if let completion = taskCompletion {
       taskCompletion = { (listResult: StorageListResult?, error: NSError?) in
         completion(listResult, error)
@@ -92,11 +92,11 @@ class StorageListTask: StorageTask, StorageTaskManagement {
       // items
       // to return per page. This removes the need to backfill results if Firebase Storage filters
       // objects that are considered invalid (such as items with two consecutive slashes).
-      if let pageSize {
+      if let pageSize = self.pageSize {
         queryParams["maxResults"] = "\(pageSize)"
       }
 
-      if let previousPageToken {
+      if let previousPageToken = self.previousPageToken {
         queryParams["pageToken"] = previousPageToken
       }
 
@@ -116,10 +116,10 @@ class StorageListTask: StorageTask, StorageTaskManagement {
       self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
         guard let self = self else { return }
         var listResult: StorageListResult?
-        if let error, self.error == nil {
+        if let error = error, self.error == nil {
           self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
         } else {
-          if let data,
+          if let data = data,
              let responseDictionary = try? JSONSerialization
              .jsonObject(with: data) as? [String: Any] {
             listResult = StorageListResult(with: responseDictionary, reference: self.reference)

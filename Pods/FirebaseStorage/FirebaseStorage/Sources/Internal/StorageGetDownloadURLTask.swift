@@ -23,15 +23,15 @@ import Foundation
 /**
  * Task which provides the ability to get a download URL for an object in Firebase Storage.
  */
-class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
+internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var taskCompletion: ((_ downloadURL: URL?, _: Error?) -> Void)?
 
-  init(reference: StorageReference,
-       fetcherService: GTMSessionFetcherService,
-       queue: DispatchQueue,
-       completion: ((_: URL?, _: Error?) -> Void)?) {
+  internal init(reference: StorageReference,
+                fetcherService: GTMSessionFetcherService,
+                queue: DispatchQueue,
+                completion: ((_: URL?, _: Error?) -> Void)?) {
     super.init(reference: reference, service: fetcherService, queue: queue)
     taskCompletion = completion
   }
@@ -43,7 +43,7 @@ class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
   /**
    * Prepares a task and begins execution.
    */
-  func enqueue() {
+  internal func enqueue() {
     if let completion = taskCompletion {
       taskCompletion = { (url: URL?, error: Error?) in
         completion(url, error)
@@ -64,12 +64,12 @@ class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
       self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
         guard let self = self else { return }
         var downloadURL: URL?
-        if let error {
+        if let error = error {
           if self.error == nil {
             self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           }
         } else {
-          if let data,
+          if let data = data,
              let responseDictionary = try? JSONSerialization
              .jsonObject(with: data) as? [String: Any] {
             downloadURL = self.downloadURLFromMetadataDictionary(responseDictionary)
@@ -93,7 +93,7 @@ class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
     }
   }
 
-  func downloadURLFromMetadataDictionary(_ dictionary: [String: Any]) -> URL? {
+  internal func downloadURLFromMetadataDictionary(_ dictionary: [String: Any]) -> URL? {
     let downloadTokens = dictionary["downloadTokens"]
     guard let downloadTokens = downloadTokens as? String,
           downloadTokens.count > 0 else {

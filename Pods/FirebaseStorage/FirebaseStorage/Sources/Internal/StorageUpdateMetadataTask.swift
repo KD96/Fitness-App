@@ -23,17 +23,17 @@ import Foundation
 /**
  * Task which provides the ability to delete an object in Firebase Storage.
  */
-class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
+internal class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var taskCompletion: ((_ metadata: StorageMetadata?, _: Error?) -> Void)?
   private var updateMetadata: StorageMetadata
 
-  init(reference: StorageReference,
-       fetcherService: GTMSessionFetcherService,
-       queue: DispatchQueue,
-       metadata: StorageMetadata,
-       completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
+  internal init(reference: StorageReference,
+                fetcherService: GTMSessionFetcherService,
+                queue: DispatchQueue,
+                metadata: StorageMetadata,
+                completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
     updateMetadata = metadata
     super.init(reference: reference, service: fetcherService, queue: queue)
     taskCompletion = completion
@@ -46,7 +46,7 @@ class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
   /**
    * Prepares a task and begins execution.
    */
-  func enqueue() {
+  internal func enqueue() {
     let completion = taskCompletion
     taskCompletion = { (metadata: StorageMetadata?, error: Error?) in
       completion?(metadata, error)
@@ -73,12 +73,12 @@ class StorageUpdateMetadataTask: StorageTask, StorageTaskManagement {
       self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
         guard let self = self else { return }
         var metadata: StorageMetadata?
-        if let error {
+        if let error = error {
           if self.error == nil {
             self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           }
         } else {
-          if let data,
+          if let data = data,
              let responseDictionary = try? JSONSerialization
              .jsonObject(with: data) as? [String: AnyHashable] {
             metadata = StorageMetadata(dictionary: responseDictionary)

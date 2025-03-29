@@ -22,13 +22,10 @@ import Foundation
 
 /**
  * `StorageDownloadTask` implements resumable downloads from an object in Firebase Storage.
- *
  * Downloads can be returned on completion with a completion handler, and can be monitored
  * by attaching observers, or controlled by calling `pause()`, `resume()`,
  * or `cancel()`.
- *
  * Downloads can currently be returned as `Data` in memory, or as a `URL` to a file on disk.
- *
  * Downloads are performed on a background queue, and callbacks are raised on the developer
  * specified `callbackQueue` in Storage, or the main queue if left unspecified.
  */
@@ -86,17 +83,17 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
 
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
-  var downloadData: Data?
+  internal var downloadData: Data?
   // Hold completion in object to force it to be retained until completion block is called.
-  var completionData: ((Data?, Error?) -> Void)?
-  var completionURL: ((URL?, Error?) -> Void)?
+  internal var completionData: ((Data?, Error?) -> Void)?
+  internal var completionURL: ((URL?, Error?) -> Void)?
 
   // MARK: - Internal Implementations
 
-  override init(reference: StorageReference,
-                service: GTMSessionFetcherService,
-                queue: DispatchQueue,
-                file: URL?) {
+  override internal init(reference: StorageReference,
+                         service: GTMSessionFetcherService,
+                         queue: DispatchQueue,
+                         file: URL?) {
     super.init(reference: reference, service: service, queue: queue, file: file)
   }
 
@@ -104,7 +101,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
     self.fetcher?.stopFetching()
   }
 
-  func enqueueImplementation(resumeWith resumeData: Data? = nil) {
+  internal func enqueueImplementation(resumeWith resumeData: Data? = nil) {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
       self.state = .queueing
@@ -116,7 +113,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
       request.url = components?.url
 
       var fetcher: GTMSessionFetcher
-      if let resumeData {
+      if let resumeData = resumeData {
         fetcher = GTMSessionFetcher(downloadResumeData: resumeData)
         fetcher.comment = "Resuming DownloadTask"
       } else {
@@ -125,7 +122,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
       }
       fetcher.maxRetryInterval = self.reference.storage.maxDownloadRetryInterval
 
-      if let fileURL {
+      if let fileURL = self.fileURL {
         // Handle file downloads
         fetcher.destinationFileURL = fileURL
         fetcher.downloadProgressBlock = { [weak self] (bytesWritten: Int64,
@@ -163,7 +160,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
         self.fire(for: .progress, snapshot: self.snapshot)
 
         // Handle potential issues with download
-        if let error {
+        if let error = error {
           self.state = .failed
           self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           self.fire(for: .failure, snapshot: self.snapshot)
@@ -171,7 +168,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
         }
         // Download completed successfully, fire completion callbacks
         self.state = .success
-        if let data {
+        if let data = data {
           self.downloadData = data
         }
         self.fire(for: .success, snapshot: self.snapshot)
@@ -183,7 +180,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
     }
   }
 
-  func cancel(withError error: NSError) {
+  internal func cancel(withError error: NSError) {
     dispatchQueue.async { [weak self] in
       guard let self = self else { return }
       self.state = .cancelled

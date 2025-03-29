@@ -1,5 +1,5 @@
 import SwiftUI
-import Firebase
+import FirebaseCore
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFirestoreSwift

@@ -30,15 +30,15 @@ import Foundation
 #endif // swift(>=5.9)
 
 class StorageUtils {
-  class func defaultRequestForReference(reference: StorageReference,
-                                        queryParams: [String: String]? = nil)
+  internal class func defaultRequestForReference(reference: StorageReference,
+                                                 queryParams: [String: String]? = nil)
     -> URLRequest {
     var components = URLComponents()
     components.scheme = reference.storage.scheme
     components.host = reference.storage.host
     components.port = reference.storage.port
 
-    if let queryParams {
+    if let queryParams = queryParams {
       var queryItems = [URLQueryItem]()
       for (key, value) in queryParams {
         queryItems.append(URLQueryItem(name: key, value: value))
@@ -60,7 +60,7 @@ class StorageUtils {
     return URLRequest(url: url)
   }
 
-  class func encodedURL(for path: StoragePath) -> String {
+  internal class func encodedURL(for path: StoragePath) -> String {
     let bucketString = "/b/\(GCSEscapedString(path.bucket))"
     var objectString: String
     if let objectName = path.object {
@@ -71,7 +71,7 @@ class StorageUtils {
     return "/v0\(bucketString)\(objectString)"
   }
 
-  class func GCSEscapedString(_ string: String) -> String {
+  internal class func GCSEscapedString(_ string: String) -> String {
     // This is the list at https://cloud.google.com/storage/docs/json_api/ without &, ; and +.
     let allowedSet =
       CharacterSet(
@@ -80,7 +80,7 @@ class StorageUtils {
     return string.addingPercentEncoding(withAllowedCharacters: allowedSet)!
   }
 
-  class func MIMETypeForExtension(_ fileExtension: String?) -> String {
+  internal class func MIMETypeForExtension(_ fileExtension: String?) -> String {
     guard let fileExtension = fileExtension else {
       return "application/octet-stream"
     }

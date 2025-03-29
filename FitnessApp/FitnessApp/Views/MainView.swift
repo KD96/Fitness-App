@@ -1,5 +1,5 @@
 import SwiftUI
-import Firebase
+import FirebaseCore
 
 struct MainView: View {
     @EnvironmentObject var viewModel: AuthViewModel

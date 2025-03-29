@@ -1,5 +1,5 @@
 import SwiftUI
-import Firebase
+import FirebaseCore
 
 struct AddWorkoutView: View {
     @Environment(\.presentationMode) var presentationMode

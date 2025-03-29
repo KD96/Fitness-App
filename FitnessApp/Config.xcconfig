@@ -1,0 +1,3 @@
+SWIFT_OBJC_BRIDGING_HEADER = FitnessApp/FitnessApp-Bridging-Header.h
+HEADER_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/FirebaseCore/FirebaseCore/Sources" "${PODS_ROOT}/Headers/Public"
+SWIFT_INCLUDE_PATHS = $(inherited) ${PODS_ROOT} 

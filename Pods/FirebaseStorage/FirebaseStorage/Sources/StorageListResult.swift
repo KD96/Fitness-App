@@ -18,17 +18,23 @@ import Foundation
 @objc(FIRStorageListResult) open class StorageListResult: NSObject {
   /**
    * The prefixes (folders) returned by a `list()` operation.
+   *
+   * - Returns: A list of prefixes (folders).
    */
   @objc public let prefixes: [StorageReference]
 
   /**
    * The objects (files) returned by a `list()` operation.
+   *
+   * - Returns: A page token if more results are available.
    */
   @objc public let items: [StorageReference]
 
   /**
-   * A token that can be used to resume a previous `list()` operation. `nil`
+   * Returns a token that can be used to resume a previous `list()` operation. `nil`
    * indicates that there are no more results.
+   *
+   * - Returns: A page token if more results are available.
    */
   @objc public let pageToken: String?
 
@@ -42,7 +48,7 @@ import Foundation
 
   // MARK: - Internal APIs
 
-  convenience init(with dictionary: [String: Any], reference: StorageReference) {
+  internal convenience init(with dictionary: [String: Any], reference: StorageReference) {
     var prefixes = [StorageReference]()
     var items = [StorageReference]()
 
@@ -68,9 +74,9 @@ import Foundation
     self.init(withPrefixes: prefixes, items: items, pageToken: pageToken)
   }
 
-  init(withPrefixes prefixes: [StorageReference],
-       items: [StorageReference],
-       pageToken: String?) {
+  internal init(withPrefixes prefixes: [StorageReference],
+                items: [StorageReference],
+                pageToken: String?) {
     self.prefixes = prefixes
     self.items = items
     self.pageToken = pageToken
