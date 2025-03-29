@@ -27,40 +27,39 @@
 import Foundation
 import ImageIO
 
-/// Represents a set of image creation options used in Kingfisher.
-public struct ImageCreatingOptions: Equatable {
+/// Represents a set of image creating options used in Kingfisher.
+public struct ImageCreatingOptions {
 
-    /// The target scale of the image that needs to be created.
-    public var scale: CGFloat
+    /// The target scale of image needs to be created.
+    public let scale: CGFloat
 
-    /// The expected animation duration if an animated image is being created.
-    public var duration: TimeInterval
+    /// The expected animation duration if an animated image being created.
+    public let duration: TimeInterval
 
-    /// For an animated image, indicates whether or not all frames should be loaded before displaying.
-    public var preloadAll: Bool
+    /// For an animated image, whether or not all frames should be loaded before displaying.
+    public let preloadAll: Bool
 
-    /// For an animated image, indicates whether only the first image should be
-    /// loaded as a static image. It is useful for previewing an animated image.
-    public var onlyFirstFrame: Bool
+    /// For an animated image, whether or not only the first image should be
+    /// loaded as a static image. It is useful for preview purpose of an animated image.
+    public let onlyFirstFrame: Bool
     
     /// Creates an `ImageCreatingOptions` object.
     ///
     /// - Parameters:
-    ///     - scale: The target scale of the image that needs to be created. Default is `1.0`.
-    ///     - duration: The expected animation duration if an animated image is being created.
-    ///                 A value less than or equal to `0.0` means the animated image duration will
-    ///                 be determined by the frame data. Default is `0.0`.
-    ///     - preloadAll: For an animated image, whether or not all frames should be loaded before displaying.
-    ///                   Default is `false`.
-    ///     - onlyFirstFrame: For an animated image, whether only the first image should be
-    ///                       loaded as a static image. It is useful for previewing an animated image.
-    ///                       Default is `false`.
+    ///   - scale: The target scale of image needs to be created. Default is `1.0`.
+    ///   - duration: The expected animation duration if an animated image being created.
+    ///               A value less or equal to `0.0` means the animated image duration will
+    ///               be determined by the frame data. Default is `0.0`.
+    ///   - preloadAll: For an animated image, whether or not all frames should be loaded before displaying.
+    ///                 Default is `false`.
+    ///   - onlyFirstFrame: For an animated image, whether or not only the first image should be
+    ///                     loaded as a static image. It is useful for preview purpose of an animated image.
+    ///                     Default is `false`.
     public init(
         scale: CGFloat = 1.0,
         duration: TimeInterval = 0.0,
         preloadAll: Bool = false,
-        onlyFirstFrame: Bool = false
-    )
+        onlyFirstFrame: Bool = false)
     {
         self.scale = scale
         self.duration = duration
@@ -69,13 +68,13 @@ public struct ImageCreatingOptions: Equatable {
     }
 }
 
-/// Represents the decoding for a GIF image. This class extracts frames from an ``ImageFrameSource``, and then
-/// holds the images for later use.
+/// Represents the decoding for a GIF image. This class extracts frames from an `imageSource`, then
+/// hold the images for later use.
 public class GIFAnimatedImage {
     let images: [KFCrossPlatformImage]
     let duration: TimeInterval
     
-    init?(from frameSource: any ImageFrameSource, options: ImageCreatingOptions) {
+    init?(from frameSource: ImageFrameSource, options: ImageCreatingOptions) {
         let frameCount = frameSource.frameCount
         var images = [KFCrossPlatformImage]()
         var gifDuration = 0.0
@@ -103,7 +102,7 @@ public class GIFAnimatedImage {
         self.init(from: frameSource, options: options)
     }
     
-    /// Calculates the frame duration for a GIF frame out of the `kCGImagePropertyGIFDictionary` dictionary.
+    /// Calculates frame duration for a gif frame out of the kCGImagePropertyGIFDictionary dictionary.
     public static func getFrameDuration(from gifInfo: [String: Any]?) -> TimeInterval {
         let defaultFrameDuration = 0.1
         guard let gifInfo = gifInfo else { return defaultFrameDuration }
@@ -116,12 +115,7 @@ public class GIFAnimatedImage {
         return frameDuration.doubleValue > 0.011 ? frameDuration.doubleValue : defaultFrameDuration
     }
 
-    /// Calculates the frame duration at a specific index for a GIF from an `CGImageSource`.
-    /// 
-    /// - Parameters:
-    ///   - imageSource: The image source where the animated image information should be extracted from.
-    ///   - index: The index of the target frame in the image.
-    /// - Returns: The time duration of the frame at given index in the image.
+    /// Calculates frame duration at a specific index for a gif from an `imageSource`.
     public static func getFrameDuration(from imageSource: CGImageSource, at index: Int) -> TimeInterval {
         guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, index, nil)
             as? [String: Any] else { return 0.0 }
@@ -131,41 +125,26 @@ public class GIFAnimatedImage {
     }
 }
 
-/// Represents a frame source for an animated image.
+/// Represents a frame source for animated image
 public protocol ImageFrameSource {
-    
     /// Source data associated with this frame source.
     var data: Data? { get }
     
-    /// Count of the total frames in this frame source.
+    /// Count of total frames in this frame source.
     var frameCount: Int { get }
     
-    /// Retrieves the frame at a specific index. 
-    ///
-    /// The resulting image is expected to be no larger than `maxSize`. If the index is invalid,
-    /// implementors should return `nil`.
+    /// Retrieves the frame at a specific index. The result image is expected to be
+    /// no larger than `maxSize`. If the index is invalid, implementors should return `nil`.
     func frame(at index: Int, maxSize: CGSize?) -> CGImage?
     
     /// Retrieves the duration at a specific index. If the index is invalid, implementors should return `0.0`.
     func duration(at index: Int) -> TimeInterval
-    
-    /// Creates a copy of the current `ImageFrameSource` instance.
-    ///
-    /// - Returns: A new instance of the same type as `self` with identical properties.
-    ///            If not overridden by conforming types, this default implementation
-    ///            simply returns `self`, which may not create an actual copy if the type is a reference type.
-    func copy() -> Self
 }
 
 public extension ImageFrameSource {
-    
     /// Retrieves the frame at a specific index. If the index is invalid, implementors should return `nil`.
     func frame(at index: Int) -> CGImage? {
         return frame(at: index, maxSize: nil)
-    }
-    
-    func copy() -> Self {
-        return self
     }
 }
 
@@ -193,13 +172,6 @@ struct CGImageFrameSource: ImageFrameSource {
 
     func duration(at index: Int) -> TimeInterval {
         return GIFAnimatedImage.getFrameDuration(from: imageSource, at: index)
-    }
-    
-    func copy() -> Self {
-        guard let data = data, let source = CGImageSourceCreateWithData(data as CFData, options as CFDictionary?) else {
-            return self
-        }
-        return CGImageFrameSource(data: data, imageSource: source, options: options)
     }
 }
 

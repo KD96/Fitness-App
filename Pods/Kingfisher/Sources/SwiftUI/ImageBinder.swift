@@ -33,7 +33,6 @@ extension KFImage {
 
     /// Represents a binder for `KFImage`. It takes responsibility as an `ObjectBinding` and performs
     /// image downloading and progress reporting based on `KingfisherManager`.
-    @MainActor
     class ImageBinder: ObservableObject {
         
         init() {}
@@ -67,7 +66,7 @@ extension KFImage {
 
         func start<HoldingView: KFImageHoldingView>(context: Context<HoldingView>) {
             guard let source = context.source else {
-                CallbackQueueMain.currentOrAsync {
+                CallbackQueue.mainCurrentOrAsync.execute {
                     context.onFailureDelegate.call(KingfisherError.imageSettingError(reason: .emptySource))
                     if let image = context.options.onFailureImage {
                         self.loadedImage = image
@@ -89,24 +88,18 @@ extension KFImage {
                         self.updateProgress(downloaded: size, total: total)
                         context.onProgressDelegate.call((size, total))
                     },
-                    progressiveImageSetter: { image in
-                        CallbackQueueMain.currentOrAsync {
-                            self.markLoaded(sendChangeEvent: true)
-                            self.loadedImage = image
-                        }
-                    },
                     completionHandler: { [weak self] result in
 
-                        guard let self else { return }
+                        guard let self = self else { return }
 
-                        CallbackQueueMain.currentOrAsync {
+                        CallbackQueue.mainCurrentOrAsync.execute {
                             self.downloadTask = nil
                             self.loading = false
                         }
                         
                         switch result {
                         case .success(let value):
-                            CallbackQueueMain.currentOrAsync {
+                            CallbackQueue.mainCurrentOrAsync.execute {
                                 if let fadeDuration = context.fadeTransitionDuration(cacheType: value.cacheType) {
                                     self.animating = true
                                     let animation = Animation.linear(duration: fadeDuration)
@@ -121,18 +114,18 @@ extension KFImage {
                                 self.animating = false
                             }
 
-                            CallbackQueueMain.async {
+                            CallbackQueue.mainAsync.execute {
                                 context.onSuccessDelegate.call(value)
                             }
                         case .failure(let error):
-                            CallbackQueueMain.currentOrAsync {
+                            CallbackQueue.mainCurrentOrAsync.execute {
                                 if let image = context.options.onFailureImage {
                                     self.loadedImage = image
                                 }
                                 self.markLoaded(sendChangeEvent: false)
                             }
                             
-                            CallbackQueueMain.async {
+                            CallbackQueue.mainAsync.execute {
                                 context.onFailureDelegate.call(error)
                             }
                         }
@@ -155,13 +148,13 @@ extension KFImage {
         /// Restores the download task priority to default if it is in progress.
         func restorePriorityOnAppear() {
             guard let downloadTask = downloadTask, loading == true else { return }
-            downloadTask.sessionTask?.task.priority = URLSessionTask.defaultPriority
+            downloadTask.sessionTask.task.priority = URLSessionTask.defaultPriority
         }
         
         /// Reduce the download task priority if it is in progress.
         func reducePriorityOnDisappear() {
             guard let downloadTask = downloadTask, loading == true else { return }
-            downloadTask.sessionTask?.task.priority = URLSessionTask.lowPriority
+            downloadTask.sessionTask.task.priority = URLSessionTask.lowPriority
         }
     }
 }

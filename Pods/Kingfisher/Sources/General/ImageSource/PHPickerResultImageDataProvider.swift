@@ -30,14 +30,6 @@ import Foundation
 
 import PhotosUI
 
-#if compiler(>=6)
-@available(iOS 14.0, macOS 13.0, *)
-extension PHPickerResult: @unchecked @retroactive Sendable { }
-#else
-@available(iOS 14.0, macOS 13.0, *)
-extension PHPickerResult: @unchecked Sendable { }
-#endif
-
 /// A data provider to provide image data from a given `PHPickerResult`.
 @available(iOS 14.0, macOS 13.0, *)
 public struct PHPickerResultImageDataProvider: ImageDataProvider {
@@ -45,8 +37,6 @@ public struct PHPickerResultImageDataProvider: ImageDataProvider {
     /// The possible error might be caused by the `PHPickerResultImageDataProvider`.
     /// - invalidImage: The retrieved image is invalid.
     public enum PHPickerResultImageDataProviderError: Error {
-        /// An error happens during picking up image through the item provider of `PHPickerResult`.
-        case pickerProviderError(any Error)
         /// The retrieved image is invalid.
         case invalidImage
     }
@@ -74,10 +64,10 @@ public struct PHPickerResultImageDataProvider: ImageDataProvider {
         self.contentType = contentType
     }
 
-    public func data(handler: @escaping @Sendable (Result<Data, any Error>) -> Void) {
+    public func data(handler: @escaping (Result<Data, Error>) -> Void) {
         pickerResult.itemProvider.loadDataRepresentation(forTypeIdentifier: contentType.identifier) { data, error in
             if let error {
-                handler(.failure(PHPickerResultImageDataProviderError.pickerProviderError(error)))
+                handler(.failure(error))
                 return
             }
 
