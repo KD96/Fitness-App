@@ -50,9 +50,10 @@
     #import <FirebaseFirestore/FirebaseFirestore.h>
   #endif
 
-  #if __has_include("FirebaseFunctions-umbrella.h")
-    #import <FirebaseFunctions/FirebaseFunctions-Swift.h>
-  #endif
+  // Commented out to avoid issues with missing FirebaseFunctions module
+  //#if __has_include("FirebaseFunctions-umbrella.h")
+  //  #import <FirebaseFunctions/FirebaseFunctions-Swift.h>
+  //#endif
 
   #if __has_include(<FirebaseInAppMessaging/FirebaseInAppMessaging.h>)
     #import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>

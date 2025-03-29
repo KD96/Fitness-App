@@ -14,7 +14,6 @@ target 'FitnessApp' do
   pod 'Firebase/Auth', '~> 10.15.0'
   pod 'Firebase/Firestore', '~> 10.15.0'
   pod 'Firebase/Storage', '~> 10.15.0'
-  pod 'Firebase/Functions', '~> 10.15.0'
   pod 'Firebase/Analytics', '~> 10.15.0'
   pod 'FirebaseFirestoreSwift', '~> 10.15.0'
 
@@ -40,14 +39,29 @@ post_install do |installer|
       # Desactivar Bitcode (ya no es necesario en iOS 16+)
       config.build_settings['ENABLE_BITCODE'] = 'NO'
       
+      # Add this to exclude arm64 from simulator builds - avoids -G flag issue
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+      
       # Fix specific targets
       if target.name == 'BoringSSL-GRPC'
         config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
+        # Remove the problematic -G flag from OTHER_CFLAGS
         if config.build_settings['OTHER_CFLAGS'].is_a?(Array)
           config.build_settings['OTHER_CFLAGS'] = config.build_settings['OTHER_CFLAGS'].reject { |f| f == '-G' }
+        elsif config.build_settings['OTHER_CFLAGS'].is_a?(String)
+          config.build_settings['OTHER_CFLAGS'] = config.build_settings['OTHER_CFLAGS'].gsub('-G', '')
         end
+        
+        # Remove the problematic -G flag from OTHER_CXXFLAGS
         if config.build_settings['OTHER_CXXFLAGS'].is_a?(Array)
           config.build_settings['OTHER_CXXFLAGS'] = config.build_settings['OTHER_CXXFLAGS'].reject { |f| f == '-G' }
+        elsif config.build_settings['OTHER_CXXFLAGS'].is_a?(String)
+          config.build_settings['OTHER_CXXFLAGS'] = config.build_settings['OTHER_CXXFLAGS'].gsub('-G', '')
+        end
+        
+        # Also check and fix COMPILER_FLAGS
+        if config.build_settings['COMPILER_FLAGS'] && config.build_settings['COMPILER_FLAGS'].include?('-G')
+          config.build_settings['COMPILER_FLAGS'] = config.build_settings['COMPILER_FLAGS'].gsub('-G', '')
         end
       end
       
@@ -56,6 +70,14 @@ post_install do |installer|
         config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
         config.build_settings['CLANG_WARN_STRICT_PROTOTYPES'] = 'NO'
         config.build_settings['CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF'] = 'NO'
+      end
+      
+      # Also handle FirebaseFunctions specifically if it's included via dependencies
+      if target.name.include?('FirebaseFunctions')
+        config.build_settings['SWIFT_VERSION'] = '5.0'
+        config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO' 
+        config.build_settings['OTHER_SWIFT_FLAGS'] ||= ['$(inherited)']
+        config.build_settings['OTHER_SWIFT_FLAGS'] << '-suppress-warnings'
       end
       
       # Ensure LD_RUNPATH_SEARCH_PATHS includes $(inherited)
