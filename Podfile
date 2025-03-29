@@ -8,19 +8,12 @@ inhibit_all_warnings!
 target 'FitnessApp' do
   use_frameworks!
 
-  # Add the main Firebase pod
-  pod 'Firebase', '~> 10.12.0'
-  # Firebase modules
-  pod 'Firebase/Core', '~> 10.12.0'
-  pod 'Firebase/Auth', '~> 10.12.0'
-  pod 'Firebase/Firestore', '~> 10.12.0'
-  pod 'Firebase/Storage', '~> 10.12.0'
-  pod 'Firebase/Analytics', '~> 10.12.0'
-  pod 'FirebaseFirestoreSwift', '~> 10.12.0'
-  
-  # Explicitly add Firebase modules to ensure proper linking
-  pod 'FirebaseCore', '~> 10.12.0'
-  pod 'FirebaseFirestore', '~> 10.12.0'
+  # Firebase
+  pod 'Firebase/Core'
+  pod 'Firebase/Auth'
+  pod 'Firebase/Firestore'
+  pod 'Firebase/Storage'
+  pod 'FirebaseFirestoreSwift'
 
   # UI Components
   pod 'SnapKit', '~> 5.6.0'
